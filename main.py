@@ -41,8 +41,15 @@ if __name__ == '__main__':
     publisher = Publisher()
 
     publisher_id = input('Введите id издателя: ')
-    find_publisher = session.query(Publisher).filter(Publisher.id == publisher_id).first()
+    find_publisher = session.query(Stock) \
+                        .join(Book, Book.id == Stock.id_book) \
+                        .join(Publisher, Publisher.id == Book.id_publisher) \
+                        .join(Shop, Shop.id == Stock.id_shop) \
+                        .with_entities(Shop.name) \
+                        .distinct() \
+                        .filter(Publisher.id == publisher_id)
 
-    print(find_publisher)
+    print(f'Список магазинов, где продаются книги издателя: {[q[0] for q in find_publisher.all()]}')
+    
 
 session.close()
